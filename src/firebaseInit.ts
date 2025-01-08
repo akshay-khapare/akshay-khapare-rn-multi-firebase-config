@@ -24,7 +24,7 @@ export interface FirebaseConfig {
  * @param config - Firebase configuration object
  * @returns Promise<void>
  */
-const initializeFirebase = async (
+export const initializeFirebase = async (
   projectName: string,
   config: FirebaseConfig
 ): Promise<void> => {
@@ -39,7 +39,9 @@ const initializeFirebase = async (
  * @param projectName - Name of the Firebase instance to configure
  * @returns Promise<void>
  */
-export const configureFirestore = async (projectName?: string): Promise<void> => {
+export const configureFirestore = async (
+  projectName?: string
+): Promise<void> => {
   const app = firebaseApp.app(projectName);
   await app.firestore().settings({
     persistence: true,
