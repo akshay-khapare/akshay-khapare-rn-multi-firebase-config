@@ -1,4 +1,4 @@
-import { firestore } from "../Firebase";
+import { firestore } from "../firebase";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
 /**
@@ -46,31 +46,19 @@ export const useFirestoreGetQuery = () => {
    * @returns Promise resolving to array of documents with their IDs
    */
   const getQuery = async <T = FirebaseFirestoreTypes.DocumentData>(
-    {
-      collection,
-      firebaseProjectName,
-      where,
-      orderBy,
-      limit,
-      startAt,
-      startAfter,
-      endAt,
-      endBefore,
-    }: QueryParams,
+    params: QueryParams,
     options?: QueryOptions
   ): Promise<(T & { id: string })[]> => {
-    let query: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> =
-      firestore(firebaseProjectName).collection(collection);
+    const { collection, firebaseProjectName, where, orderBy, limit, startAt, startAfter, endAt, endBefore } = params;
+
+    // Initialize the query as a CollectionReference
+    let query: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> = firestore(firebaseProjectName).collection(collection);
 
     // Apply where clauses
-    where?.forEach(([field, op, value]) => {
-      query = query.where(field, op, value);
-    });
+    where?.forEach(([field, op, value]) => query = query.where(field, op, value));
 
     // Apply ordering
-    orderBy?.forEach(([field, direction]) => {
-      query = query.orderBy(field, direction);
-    });
+    orderBy?.forEach(([field, direction]) => query = query.orderBy(field, direction));
 
     // Apply cursors
     if (startAt) query = query.startAt(startAt);
@@ -81,14 +69,9 @@ export const useFirestoreGetQuery = () => {
     // Apply limit
     if (limit) query = query.limit(limit);
 
-    const snapshot = await query.get({
-      source: options?.source || "default",
-    });
+    const snapshot = await query.get({ source: options?.source || "default" });
 
-    return snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as T),
-    }));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...(doc.data() as T) }));
   };
 
   return { getQuery };

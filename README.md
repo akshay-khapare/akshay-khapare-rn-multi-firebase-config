@@ -143,30 +143,198 @@ async function initializeFirebaseProjects() {
 ## Hooks Use Cases
 
 <details>
+<summary><strong>useCollectionListener</strong></summary>
+
+```typescript
+const { listenToCollection } = useCollectionListener();
+
+// Basic collection listening
+const unsubscribe = listenToCollection<UserData>({
+  collection: 'users',
+  onData: (users) => {
+    console.log('Users updated:', users);
+  },
+  onError: (error) => {
+    console.error('Error listening to users:', error);
+  }
+});
+
+// Advanced querying with filters and ordering
+const unsubscribeFiltered = listenToCollection<ProductData>({
+  collection: 'products',
+  firebaseProject: 'store',
+  where: [
+    ['category', '==', 'electronics'],
+    ['price', '<=', 1000]
+  ],
+  orderBy: [
+    ['price', 'asc'],
+    ['name', 'asc']
+  ],
+  limit: 10,
+  onData: (products) => {
+    console.log('Filtered products:', products);
+  }
+});
+
+// Cleanup when component unmounts
+return () => {
+  unsubscribe();
+  unsubscribeFiltered();
+};
+```
+</details>
+
+<details>
+<summary><strong>useDocumentListener</strong></summary>
+
+```typescript
+const { listenToDocument } = useDocumentListener();
+
+// Basic document listening
+const unsubscribe = listenToDocument<UserProfile>({
+  collection: 'users',
+  doc: 'user123',
+  onData: (userData) => {
+    if (userData.exists) {
+      console.log('User data:', userData.data);
+    } else {
+      console.log('User document does not exist');
+    }
+  }
+});
+
+// Multi-project document listening
+const unsubscribeMultiProject = listenToDocument<OrderData>({
+  collection: 'orders',
+  doc: 'order123',
+  firebaseProject: 'secondary',
+  onData: (orderData) => {
+    console.log('Order status:', orderData.data?.status);
+  },
+  onError: (error) => {
+    console.error('Error listening to order:', error);
+  }
+});
+
+// Cleanup
+return () => {
+  unsubscribe();
+  unsubscribeMultiProject();
+};
+```
+</details>
+
+<details>
+<summary><strong>useFirestoreGet</strong></summary>
+
+```typescript
+const { getData } = useFirestoreGet();
+
+// Basic document retrieval
+const fetchUserData = async () => {
+  const result = await getData<UserProfile>({
+    collection: 'users',
+    doc: 'user123',
+    firebaseProjectName: 'main'
+  });
+  
+  if (result.exists) {
+    console.log('User data:', result.data);
+  }
+};
+
+// Type-safe data retrieval
+interface ProductData {
+  name: string;
+  price: number;
+  stock: number;
+}
+
+const fetchProduct = async (productId: string) => {
+  const result = await getData<ProductData>({
+    collection: 'products',
+    doc: productId
+  });
+  
+  if (result.exists && result.data) {
+    const { name, price, stock } = result.data;
+    console.log(`${name}: $${price} (${stock} in stock)`);
+  }
+};
+```
+</details>
+
+<details>
+<summary><strong>useFirestoreGetQuery</strong></summary>
+
+```typescript
+const { getQuery } = useFirestoreGetQuery();
+
+// Basic query with filters
+const fetchActiveUsers = async () => {
+  const users = await getQuery({
+    collection: 'users',
+    where: [
+      ['status', '==', 'active'],
+      ['lastLogin', '>=', new Date(Date.now() - 86400000)]
+    ],
+    orderBy: [['lastLogin', 'desc']],
+    limit: 10
+  });
+  console.log('Active users:', users);
+};
+
+// Pagination with cursors
+const fetchPaginatedProducts = async (lastProduct?: any) => {
+  const products = await getQuery({
+    collection: 'products',
+    orderBy: [['price', 'asc']],
+    startAfter: lastProduct,
+    limit: 20
+  });
+  return products;
+};
+
+// Complex query with multiple conditions
+const searchProducts = async (category: string, minPrice: number, maxPrice: number) => {
+  const products = await getQuery({
+    collection: 'products',
+    where: [
+      ['category', '==', category],
+      ['price', '>=', minPrice],
+      ['price', '<=', maxPrice],
+      ['inStock', '==', true]
+    ],
+    orderBy: [
+      ['price', 'asc'],
+      ['name', 'asc']
+    ]
+  });
+  return products;
+};
+```
+</details>
+
+<details>
 <summary><strong>useFirestoreSet</strong></summary>
 
-### Basic Document Creation
 ```typescript
 const { setData } = useFirestoreSet();
 
-try {
+// Basic document creation
+const createUser = async (userData: UserData) => {
   const docId = await setData({
     collection: 'users',
     doc: 'user123',
     data: userData,
     addTimestamp: true
   });
-  console.log(`Document created: ${docId}`);
-} catch (error) {
-  console.error('Error creating document:', error);
-}
-```
+  console.log('Created user:', docId);
+};
 
-### Merge Update with Error Handling
-```typescript
-const { setData } = useFirestoreSet();
-
-try {
+// Document creation with merge
+const updateUserPartial = async (userId: string, partialData: Partial<UserData>) => {
   await setData({
     collection: 'users',
     doc: userId,
@@ -174,232 +342,113 @@ try {
     merge: true,
     addTimestamp: true
   });
-} catch (error) {
-  if (error.code === 'permission-denied') {
-    console.error('Permission denied to update document');
-  } else if (error.code === 'not-found') {
-    console.error('Document not found');
-  } else {
-    console.error('Error updating document:', error);
-  }
-}
-```
-</details>
+};
 
-<details>
-<summary><strong>useFirestoreGet</strong></summary>
-
-### Basic Document Fetch
-```typescript
-const { getData } = useFirestoreGet();
-
-try {
-  const result = await getData<UserProfile>({
-    collection: 'users',
-    doc: userId
-  });
-  
-  if (result.exists) {
-    console.log(`User data:`, result.data);
-  } else {
-    console.log(`User ${userId} not found`);
-  }
-} catch (error) {
-  console.error('Error fetching user:', error);
-}
-```
-
-### Multi-Project Fetch with Error Handling
-```typescript
-const { getData } = useFirestoreGet();
-
-try {
-  const [mainData, backupData] = await Promise.all([
-    getData({
-      collection: 'users',
-      doc: userId,
-      firebaseProjectName: 'main-project'
-    }),
-    getData({
-      collection: 'users',
-      doc: userId,
-      firebaseProjectName: 'backup-project'
-    })
-  ]);
-  
-  if (!mainData.exists && !backupData.exists) {
-    throw new Error('Document not found in any project');
-  }
-} catch (error) {
-  if (error.code === 'unavailable') {
-    console.error('Firebase service is currently unavailable');
-  } else {
-    console.error('Error in cross-project fetch:', error);
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>useFirestoreGetQuery</strong></summary>
-
-### Basic Query with Error Handling
-```typescript
-const { getQuery } = useFirestoreGetQuery();
-
-try {
-  const results = await getQuery<Product>({
-    collection: 'products',
-    where: [['category', '==', 'electronics']],
-    orderBy: [['price', 'asc']],
-    limit: 10
-  });
-  console.log(`Found ${results.length} products`);
-} catch (error) {
-  if (error.code === 'failed-precondition') {
-    console.error('Query requires an index');
-  } else {
-    console.error('Query failed:', error);
-  }
-}
-```
-
-### Advanced Query with Pagination
-```typescript
-const { getQuery } = useFirestoreGetQuery();
-
-try {
-  const results = await getQuery({
-    collection: 'products',
-    where: [
-      ['price', '>=', 100],
-      ['stock', '>', 0]
-    ],
-    orderBy: [['createdAt', 'desc']],
-    limit: 20,
-    startAfter: lastDocument
-  });
-} catch (error) {
-  if (error.code === 'resource-exhausted') {
-    console.error('Query quota exceeded');
-  } else {
-    console.error('Advanced query failed:', error);
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>useFirestoreUpdate</strong></summary>
-
-### Basic Update with Error Handling
-```typescript
-const { updateData } = useFirestoreUpdate();
-
-try {
-  const docId = await updateData({
-    collection: 'users',
-    doc: userId,
-    data: { status: 'active' },
+// Multi-project document creation
+const createOrder = async (orderData: OrderData) => {
+  await setData({
+    collection: 'orders',
+    doc: `order_${Date.now()}`,
+    data: orderData,
+    firebaseProject: 'commerce',
     addTimestamp: true
   });
-  console.log(`Updated document: ${docId}`);
-} catch (error) {
-  if (error.code === 'not-found') {
-    console.error('Document does not exist');
-  } else if (error.code === 'permission-denied') {
-    console.error('Permission denied to update document');
-  } else {
-    console.error('Update failed:', error);
-  }
-}
-```
-
-### Partial Update with Validation
-```typescript
-const { updateData } = useFirestoreUpdate();
-
-try {
-  if (!Object.keys(updates).length) {
-    throw new Error('No updates provided');
-  }
-  
-  await updateData({
-    collection: 'profiles',
-    doc: profileId,
-    data: updates,
-    addTimestamp: true
-  });
-} catch (error) {
-  console.error('Update failed:', error.message);
-}
+};
 ```
 </details>
 
 <details>
 <summary><strong>useFirestoreTransaction</strong></summary>
 
-### Batch Operations with Error Handling
 ```typescript
-const { executeBatch } = useFirestoreTransaction();
+const { executeBatch, executeTransaction } = useFirestoreTransaction();
 
-try {
+// Batch operations
+const updateMultipleDocuments = async () => {
   const operations = [
     {
       type: 'update' as const,
-      collection: 'users',
-      doc: 'user1',
-      data: { status: 'active' }
+      collection: 'products',
+      doc: 'prod1',
+      data: { stock: 10 },
+      addTimestamp: true
     },
     {
       type: 'set' as const,
-      collection: 'logs',
-      doc: 'log1',
-      data: { action: 'user_activation' }
+      collection: 'inventory',
+      doc: 'inv1',
+      data: { lastChecked: new Date() },
+      merge: true
+    },
+    {
+      type: 'delete' as const,
+      collection: 'archived',
+      doc: 'old1'
     }
   ];
   
   const docIds = await executeBatch(operations);
   console.log('Updated documents:', docIds);
-} catch (error) {
-  if (error.code === 'aborted') {
-    console.error('Transaction was aborted');
-  } else {
-    console.error('Batch operation failed:', error);
-  }
-}
+};
+
+// Complex transaction
+const transferFunds = async (fromAccount: string, toAccount: string, amount: number) => {
+  await executeTransaction(async (transaction, firestore) => {
+    const fromRef = firestore().collection('accounts').doc(fromAccount);
+    const toRef = firestore().collection('accounts').doc(toAccount);
+    
+    const fromSnapshot = await transaction.get(fromRef);
+    const toSnapshot = await transaction.get(toRef);
+    
+    const newFromBalance = fromSnapshot.data()!.balance - amount;
+    const newToBalance = toSnapshot.data()!.balance + amount;
+    
+    transaction.update(fromRef, { balance: newFromBalance });
+    transaction.update(toRef, { balance: newToBalance });
+    
+    return { fromBalance: newFromBalance, toBalance: newToBalance };
+  });
+};
 ```
+</details>
 
-### Transaction with Retry Logic
+<details>
+<summary><strong>useFirestoreUpdate</strong></summary>
+
 ```typescript
-const { executeTransaction } = useFirestoreTransaction();
+const { updateData } = useFirestoreUpdate();
 
-const MAX_RETRIES = 3;
-let attempts = 0;
+// Basic document update
+const updateUserProfile = async (userId: string, updates: Partial<UserProfile>) => {
+  await updateData({
+    collection: 'users',
+    doc: userId,
+    data: updates,
+    addTimestamp: true
+  });
+};
 
-const performTransaction = async () => {
-  try {
-    const result = await executeTransaction(async (transaction, firestore) => {
-      const docRef = firestore().collection('inventory').doc('item1');
-      const doc = await transaction.get(docRef);
-      
-      if (!doc.exists) throw new Error('Document not found');
-      
-      const newStock = doc.data().stock - 1;
-      if (newStock < 0) throw new Error('Insufficient stock');
-      
-      transaction.update(docRef, { stock: newStock });
-      return { success: true, remaining: newStock };
-    });
-    return result;
-  } catch (error) {
-    if (error.code === 'aborted' && attempts < MAX_RETRIES) {
-      attempts++;
-      console.log(`Retrying transaction (${attempts}/${MAX_RETRIES})`);
-      return performTransaction();
+// Multi-project document update
+const updateOrderStatus = async (orderId: string, status: string) => {
+  await updateData({
+    collection: 'orders',
+    doc: orderId,
+    data: { status, lastUpdated: new Date() },
+    firebaseProject: 'commerce',
+    addTimestamp: true
+  });
+};
+
+// Partial update with specific fields
+const updateProductStock = async (productId: string, stockChange: number) => {
+  await updateData({
+    collection: 'products',
+    doc: productId,
+    data: {
+      stock: stockChange,
+      lastStockUpdate: new Date()
     }
-    throw error;
-  }
+  });
 };
 ```
 </details>
@@ -407,209 +456,47 @@ const performTransaction = async () => {
 <details>
 <summary><strong>useIsDocumentExist</strong></summary>
 
-### Check Document Existence with Error Handling
 ```typescript
 const { isExist } = useIsDocumentExist();
 
-try {
+// Basic existence check
+const checkUserExists = async (userId: string) => {
   const exists = await isExist({
     collection: 'users',
     doc: userId
   });
-  console.log(`Document exists: ${exists}`);
-} catch (error) {
-  if (error.code === 'permission-denied') {
-    console.error('Permission denied to check document');
+  
+  if (exists) {
+    console.log('User exists');
   } else {
-    console.error('Existence check failed:', error);
+    console.log('User not found');
   }
-}
-```
-
-### Multi-Project Existence Check
-```typescript
-const { isExist } = useIsDocumentExist();
-
-try {
-  const [existsInMain, existsInBackup] = await Promise.all([
-    isExist({
-      collection: 'users',
-      doc: userId,
-      firebaseProject: 'main-project'
-    }),
-    isExist({
-      collection: 'users',
-      doc: userId,
-      firebaseProject: 'backup-project'
-    })
-  ]);
-  
-  console.log('Document status:', {
-    main: existsInMain,
-    backup: existsInBackup
-  });
-} catch (error) {
-  console.error('Multi-project check failed:', error);
-}
-```
-</details>
-
-<details>
-<summary><strong>useCollectionListener</strong></summary>
-
-### Real-time Collection Updates with Error Handling
-```typescript
-const { listenToCollection } = useCollectionListener();
-
-const unsubscribe = listenToCollection({
-  collection: 'users',
-  where: [['status', '==', 'online']],
-  orderBy: [['lastSeen', 'desc']],
-  limit: 10,
-  onData: (documents) => {
-    try {
-      console.log('Collection updated:', documents);
-      // Process documents
-    } catch (error) {
-      console.error('Error processing documents:', error);
-    }
-  },
-  onError: (error) => {
-    if (error.code === 'permission-denied') {
-      console.error('Permission denied to access collection');
-    } else {
-      console.error('Collection listener error:', error);
-    }
-  }
-});
-
-// Cleanup listener when component unmounts
-useEffect(() => {
-  return () => unsubscribe();
-}, []);
-```
-
-### Filtered Collection Listening
-```typescript
-const { listenToCollection } = useCollectionListener();
-
-try {
-  const unsubscribe = listenToCollection({
-    collection: 'orders',
-    where: [
-      ['status', '==', 'pending'],
-      ['amount', '>', 1000]
-    ],
-    orderBy: [['createdAt', 'desc']],
-    onData: (orders) => {
-      console.log(`Received ${orders.length} pending high-value orders`);
-    },
-    onError: (error) => {
-      console.error('Order listener error:', error);
-    }
-  });
-  
-  // Return cleanup function
-  return unsubscribe;
-} catch (error) {
-  console.error('Error setting up listener:', error);
-}
-```
-</details>
-
-<details>
-<summary><strong>useDocumentListener</strong></summary>
-
-### Real-time Document Updates with Error Recovery
-```typescript
-const { listenToDocument } = useDocumentListener();
-
-const setupDocumentListener = (docId: string) => {
-  let retryCount = 0;
-  const MAX_RETRIES = 3;
-  
-  const subscribe = () => {
-    const unsubscribe = listenToDocument({
-      collection: 'users',
-      doc: docId,
-      onData: (data) => {
-        if (data.exists) {
-          console.log('Document updated:', data.data);
-          retryCount = 0; // Reset retry count on successful update
-        } else {
-          console.log('Document deleted or does not exist');
-        }
-      },
-      onError: (error) => {
-        console.error('Listener error:', error);
-        if (retryCount < MAX_RETRIES) {
-          retryCount++;
-          console.log(`Retrying connection (${retryCount}/${MAX_RETRIES})`);
-          unsubscribe();
-          setTimeout(subscribe, 1000 * retryCount);
-        } else {
-          console.error('Max retries reached');
-        }
-      }
-    });
-    
-    return unsubscribe;
-  };
-  
-  return subscribe();
 };
 
-// Usage in component
-useEffect(() => {
-  const unsubscribe = setupDocumentListener(userId);
-  return () => unsubscribe();
-}, [userId]);
-```
-
-### Multi-Document Synchronized Listening
-```typescript
-const { listenToDocument } = useDocumentListener();
-
-const listenToRelatedDocuments = (mainDocId: string) => {
-  const unsubscribers: (() => void)[] = [];
+// Multi-project existence check
+const verifyOrder = async (orderId: string) => {
+  const orderExists = await isExist({
+    collection: 'orders',
+    doc: orderId,
+    firebaseProject: 'commerce'
+  });
   
-  try {
-    // Listen to main document
-    unsubscribers.push(
-      listenToDocument({
-        collection: 'orders',
-        doc: mainDocId,
-        onData: (orderData) => {
-          if (orderData.exists) {
-            // Start listening to related documents
-            const userId = orderData.data?.userId;
-            if (userId) {
-              unsubscribers.push(
-                listenToDocument({
-                  collection: 'users',
-                  doc: userId,
-                  onData: (userData) => {
-                    console.log('Related user data:', userData);
-                  },
-                  onError: (error) => {
-                    console.error('User listener error:', error);
-                  }
-                })
-              );
-            }
-          }
-        },
-        onError: (error) => {
-          console.error('Order listener error:', error);
-        }
-      })
-    );
-    
-    // Return cleanup function for all listeners
-    return () => unsubscribers.forEach(unsubscribe => unsubscribe());
-  } catch (error) {
-    console.error('Error setting up listeners:', error);
-    unsubscribers.forEach(unsubscribe => unsubscribe());
+  return orderExists;
+};
+
+// Conditional operations based on existence
+const createOrUpdateUser = async (userId: string, userData: UserData) => {
+  const exists = await isExist({
+    collection: 'users',
+    doc: userId
+  });
+  
+  if (exists) {
+    // Update existing user
+    await updateData({ collection: 'users', doc: userId, data: userData });
+  } else {
+    // Create new user
+    await setData({ collection: 'users', doc: userId, data: userData });
   }
 };
 ```

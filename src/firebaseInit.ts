@@ -2,6 +2,7 @@ import firebaseApp from "@react-native-firebase/app";
 import "@react-native-firebase/auth";
 import "@react-native-firebase/firestore";
 import "@react-native-firebase/storage";
+import { firestore } from "./firebase";
 
 /**
  * Firebase configuration interface
@@ -40,10 +41,9 @@ export const initializeFirebase = async (
  * @returns Promise<void>
  */
 export const configureFirestore = async (
-  projectName?: string
+  projectName: string
 ): Promise<void> => {
-  const app = firebaseApp.app(projectName);
-  await app.firestore().settings({
+  await firestore(projectName).settings({
     persistence: true,
     cacheSizeBytes: firebaseApp.firestore.CACHE_SIZE_UNLIMITED,
   });

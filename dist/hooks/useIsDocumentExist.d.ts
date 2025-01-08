@@ -1,5 +1,5 @@
 /**
- * Parameters for checking document existence
+ * Parameters for checking document existence in Firestore
  */
 interface DocumentExistParams {
     /** Collection name in Firestore */
@@ -11,7 +11,7 @@ interface DocumentExistParams {
 }
 /**
  * Hook to check if a document exists in Firestore
- * @returns Object containing isExist function
+ * @returns Object containing isExist function for document existence check
  */
 export declare const useIsDocumentExist: () => {
     isExist: ({ collection, doc, firebaseProject, }: DocumentExistParams) => Promise<boolean>;

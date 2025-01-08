@@ -1,5 +1,4 @@
-import { firestore } from "../Firebase";
-import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+import { firestore } from "../firebase";
 
 interface DocumentData<T> {
   id: string;
@@ -15,13 +14,25 @@ interface ListenerParams<T> {
   firebaseProject?: string;
 }
 
+/**
+ * Hook to listen to a Firestore document.
+ *
+ * @returns An object with the `listenToDocument` function.
+ */
 export const useDocumentListener = () => {
+  /**
+   * Function to listen to a Firestore document.
+   *
+   * @template T The type of the document's data.
+   * @param params The parameters for the listener.
+   * @returns A function to unsubscribe from the listener.
+   */
   const listenToDocument = <T extends Record<string, any>>({
     collection,
     doc,
     onData,
     onError,
-    firebaseProject
+    firebaseProject,
   }: ListenerParams<T>): (() => void) => {
     return firestore(firebaseProject)
       .collection(collection)
@@ -31,10 +42,10 @@ export const useDocumentListener = () => {
           onData({
             id: snapshot.id,
             exists: snapshot.exists,
-            data: snapshot.exists ? (snapshot.data() as T) : null
+            data: snapshot.exists ? (snapshot.data() as T) : null,
           });
         },
-        error => onError?.(error)
+        (error) => onError?.(error)
       );
   };
 

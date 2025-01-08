@@ -27,7 +27,7 @@ export declare const initializeFirebase: (projectName: string, config: FirebaseC
  * @param projectName - Name of the Firebase instance to configure
  * @returns Promise<void>
  */
-export declare const configureFirestore: (projectName?: string) => Promise<void>;
+export declare const configureFirestore: (projectName: string) => Promise<void>;
 /**
  * Initializes multiple Firebase projects with their respective configurations
  * @param configs - Array of project configurations with name and config pairs

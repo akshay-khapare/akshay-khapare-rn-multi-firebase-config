@@ -1,12 +1,9 @@
 import { useFirestoreRef } from "./useFirestoreRef";
-import {
-  FirebaseFirestoreTypes,
-  serverTimestamp,
-} from "@react-native-firebase/firestore";
+import { serverTimestamp } from "@react-native-firebase/firestore";
 
 /**
- * Parameters for updating document data
- * @template T - Type of the document data
+ * Parameters for updating document data in Firestore
+ * @template T - Type of the document data (must be a Record with string keys)
  */
 interface UpdateDataParams<T extends Record<string, any>> {
   /** Collection name in Firestore */
@@ -17,13 +14,13 @@ interface UpdateDataParams<T extends Record<string, any>> {
   data: Partial<T>;
   /** Optional Firebase project name for multi-project setup */
   firebaseProject?: string;
-  /** Optional timestamp field to update automatically */
+  /** Add server timestamp to the document (default: false) */
   addTimestamp?: boolean;
 }
 
 /**
  * Hook for updating data in Firestore
- * @returns Object containing updateData function
+ * @returns Object containing updateData function for document updates
  */
 export const useFirestoreUpdate = () => {
   const { getFirestoreReference } = useFirestoreRef();
@@ -32,7 +29,7 @@ export const useFirestoreUpdate = () => {
    * Updates a document in Firestore
    * @template T - Type of the document data
    * @param params - Parameters for updating the document
-   * @returns Promise resolving to the ID of the updated document
+   * @returns Promise resolving to the document ID
    */
   const updateData = async <T extends Record<string, any>>({
     collection,
@@ -41,16 +38,8 @@ export const useFirestoreUpdate = () => {
     firebaseProject,
     addTimestamp = false,
   }: UpdateDataParams<T>): Promise<string> => {
-    const ref = getFirestoreReference(collection, doc, firebaseProject);
-
-    const updateData = addTimestamp
-      ? {
-          ...data,
-          updatedAt: serverTimestamp(),
-        }
-      : data;
-
-    await ref.update(updateData);
+    const documentData = addTimestamp ? { ...data, updatedAt: serverTimestamp() } : data;
+    await getFirestoreReference(collection, doc, firebaseProject).update(documentData);
     return doc;
   };
 

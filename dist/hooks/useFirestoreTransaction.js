@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useFirestoreTransaction = void 0;
-const Firebase_1 = require("../Firebase");
+const firebase_1 = require("../firebase");
 const firestore_1 = require("@react-native-firebase/firestore");
 /**
  * Hook for handling Firestore transactions and batch operations
@@ -10,26 +10,24 @@ const firestore_1 = require("@react-native-firebase/firestore");
 const useFirestoreTransaction = () => {
     /**
      * Executes multiple operations in a batch
-     * @template T - Type of the document data
      * @param operations - Array of batch operations to execute
      * @param firebaseProject - Optional Firebase project name
      * @returns Promise resolving to an array of document IDs
      */
     const executeBatch = async (operations, firebaseProject) => {
-        const batch = (0, Firebase_1.firestore)(firebaseProject).batch();
+        const batch = (0, firebase_1.firestore)(firebaseProject).batch();
+        const firestoreInstance = (0, firebase_1.firestore)(firebaseProject);
         operations.forEach(({ type, collection, doc, data, merge, addTimestamp }) => {
-            const ref = (0, Firebase_1.firestore)(firebaseProject).collection(collection).doc(doc);
+            const ref = firestoreInstance.collection(collection).doc(doc);
             const documentData = addTimestamp ? { ...data, updatedAt: (0, firestore_1.serverTimestamp)() } : data;
             switch (type) {
                 case "set":
-                    if (documentData) {
-                        batch.set(ref, documentData, { merge: merge !== null && merge !== void 0 ? merge : false });
-                    }
+                    if (documentData)
+                        batch.set(ref, documentData, { merge: !!merge });
                     break;
                 case "update":
-                    if (documentData) {
+                    if (documentData)
                         batch.update(ref, documentData);
-                    }
                     break;
                 case "delete":
                     batch.delete(ref);
@@ -37,7 +35,7 @@ const useFirestoreTransaction = () => {
             }
         });
         await batch.commit();
-        return operations.map((op) => op.doc);
+        return operations.map(op => op.doc);
     };
     /**
      * Executes operations in a transaction
@@ -46,13 +44,8 @@ const useFirestoreTransaction = () => {
      * @returns Promise resolving to transaction result
      */
     const executeTransaction = async (callback) => {
-        return (0, Firebase_1.firestore)().runTransaction(async (transaction) => {
-            return callback(transaction, Firebase_1.firestore);
-        });
+        return (0, firebase_1.firestore)().runTransaction(transaction => callback(transaction, firebase_1.firestore));
     };
-    return {
-        executeBatch,
-        executeTransaction,
-    };
+    return { executeBatch, executeTransaction };
 };
 exports.useFirestoreTransaction = useFirestoreTransaction;

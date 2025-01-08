@@ -34,7 +34,7 @@ interface QueryOptions {
  * @returns Object containing getQuery function
  */
 export declare const useFirestoreGetQuery: () => {
-    getQuery: <T = FirebaseFirestoreTypes.DocumentData>({ collection, firebaseProjectName, where, orderBy, limit, startAt, startAfter, endAt, endBefore, }: QueryParams, options?: QueryOptions) => Promise<(T & {
+    getQuery: <T = FirebaseFirestoreTypes.DocumentData>(params: QueryParams, options?: QueryOptions) => Promise<(T & {
         id: string;
     })[]>;
 };

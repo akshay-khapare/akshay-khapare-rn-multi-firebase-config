@@ -1,4 +1,4 @@
-import { firestore } from "../Firebase";
+import { firestore } from "../firebase";
 
 /**
  * Hook to get Firestore document reference

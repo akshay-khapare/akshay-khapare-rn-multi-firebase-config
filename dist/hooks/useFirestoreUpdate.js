@@ -5,7 +5,7 @@ const useFirestoreRef_1 = require("./useFirestoreRef");
 const firestore_1 = require("@react-native-firebase/firestore");
 /**
  * Hook for updating data in Firestore
- * @returns Object containing updateData function
+ * @returns Object containing updateData function for document updates
  */
 const useFirestoreUpdate = () => {
     const { getFirestoreReference } = (0, useFirestoreRef_1.useFirestoreRef)();
@@ -13,17 +13,11 @@ const useFirestoreUpdate = () => {
      * Updates a document in Firestore
      * @template T - Type of the document data
      * @param params - Parameters for updating the document
-     * @returns Promise resolving to the ID of the updated document
+     * @returns Promise resolving to the document ID
      */
     const updateData = async ({ collection, doc, data, firebaseProject, addTimestamp = false, }) => {
-        const ref = getFirestoreReference(collection, doc, firebaseProject);
-        const updateData = addTimestamp
-            ? {
-                ...data,
-                updatedAt: firestore_1.FirebaseFirestoreTypes.FieldValue.serverTimestamp(),
-            }
-            : data;
-        await ref.update(updateData);
+        const documentData = addTimestamp ? { ...data, updatedAt: (0, firestore_1.serverTimestamp)() } : data;
+        await getFirestoreReference(collection, doc, firebaseProject).update(documentData);
         return doc;
     };
     return { updateData };

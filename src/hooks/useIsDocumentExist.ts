@@ -1,7 +1,7 @@
 import { useFirestoreRef } from "./useFirestoreRef";
 
 /**
- * Parameters for checking document existence
+ * Parameters for checking document existence in Firestore
  */
 interface DocumentExistParams {
   /** Collection name in Firestore */
@@ -14,15 +14,15 @@ interface DocumentExistParams {
 
 /**
  * Hook to check if a document exists in Firestore
- * @returns Object containing isExist function
+ * @returns Object containing isExist function for document existence check
  */
 export const useIsDocumentExist = () => {
   const { getFirestoreReference } = useFirestoreRef();
 
   /**
    * Checks if a document exists in Firestore
-   * @param params - Parameters to identify the document
-   * @returns Promise resolving to boolean indicating document existence
+   * @param params - Parameters to identify the document location
+   * @returns Promise resolving to boolean indicating if document exists
    */
   const isExist = async ({
     collection,

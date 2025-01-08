@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.useDocumentListener = exports.useCollectionListener = exports.useIsDocumentExist = exports.useFirestoreTransaction = exports.useFirestoreUpdate = exports.useFirestoreGetQuery = exports.useFirestoreGet = exports.useFirestoreSet = exports.storage = exports.firestore = exports.auth = exports.initializeMultipleFirebaseProjects = void 0;
 var firebaseInit_1 = require("./firebaseInit");
 Object.defineProperty(exports, "initializeMultipleFirebaseProjects", { enumerable: true, get: function () { return firebaseInit_1.initializeMultipleFirebaseProjects; } });
-var Firebase_1 = require("./Firebase");
-Object.defineProperty(exports, "auth", { enumerable: true, get: function () { return Firebase_1.auth; } });
-Object.defineProperty(exports, "firestore", { enumerable: true, get: function () { return Firebase_1.firestore; } });
-Object.defineProperty(exports, "storage", { enumerable: true, get: function () { return Firebase_1.storage; } });
+var firebase_1 = require("./firebase");
+Object.defineProperty(exports, "auth", { enumerable: true, get: function () { return firebase_1.auth; } });
+Object.defineProperty(exports, "firestore", { enumerable: true, get: function () { return firebase_1.firestore; } });
+Object.defineProperty(exports, "storage", { enumerable: true, get: function () { return firebase_1.storage; } });
 // Hooks exports
 var useFirestoreSet_1 = require("./hooks/useFirestoreSet");
 Object.defineProperty(exports, "useFirestoreSet", { enumerable: true, get: function () { return useFirestoreSet_1.useFirestoreSet; } });

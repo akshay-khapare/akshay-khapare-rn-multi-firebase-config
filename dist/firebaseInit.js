@@ -8,6 +8,7 @@ const app_1 = __importDefault(require("@react-native-firebase/app"));
 require("@react-native-firebase/auth");
 require("@react-native-firebase/firestore");
 require("@react-native-firebase/storage");
+const firebase_1 = require("./firebase");
 /**
  * Initializes a Firebase instance with the provided configuration
  * @param projectName - Unique identifier for the Firebase instance
@@ -27,8 +28,7 @@ exports.initializeFirebase = initializeFirebase;
  * @returns Promise<void>
  */
 const configureFirestore = async (projectName) => {
-    const app = app_1.default.app(projectName);
-    await app.firestore().settings({
+    await (0, firebase_1.firestore)(projectName).settings({
         persistence: true,
         cacheSizeBytes: app_1.default.firestore.CACHE_SIZE_UNLIMITED,
     });
