@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.initializeMultipleFirebaseProjects = exports.configureFirestore = void 0;
+exports.initializeMultipleFirebaseProjects = exports.configureFirestore = exports.initializeFirebase = void 0;
 const app_1 = __importDefault(require("@react-native-firebase/app"));
 require("@react-native-firebase/auth");
 require("@react-native-firebase/firestore");
@@ -20,6 +20,7 @@ const initializeFirebase = async (projectName, config) => {
         await app_1.default.initializeApp(config, projectName);
     }
 };
+exports.initializeFirebase = initializeFirebase;
 /**
  * Configures Firestore settings for a specific Firebase instance
  * @param projectName - Name of the Firebase instance to configure
@@ -40,7 +41,7 @@ exports.configureFirestore = configureFirestore;
  */
 const initializeMultipleFirebaseProjects = async (configs) => {
     await Promise.all(configs.map(async ({ name, config }) => {
-        await initializeFirebase(name, config);
+        await (0, exports.initializeFirebase)(name, config);
         await (0, exports.configureFirestore)(name);
     }));
 };

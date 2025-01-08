@@ -1,5 +1,8 @@
 import { useFirestoreRef } from "./useFirestoreRef";
-import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+import {
+  FirebaseFirestoreTypes,
+  serverTimestamp,
+} from "@react-native-firebase/firestore";
 
 /**
  * Parameters for updating document data
@@ -43,7 +46,7 @@ export const useFirestoreUpdate = () => {
     const updateData = addTimestamp
       ? {
           ...data,
-          updatedAt: FirebaseFirestoreTypes.FieldValue.serverTimestamp(),
+          updatedAt: serverTimestamp(),
         }
       : data;
 

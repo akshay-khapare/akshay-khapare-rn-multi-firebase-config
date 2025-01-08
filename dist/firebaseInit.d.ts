@@ -16,6 +16,13 @@ export interface FirebaseConfig {
     measurementId?: string;
 }
 /**
+ * Initializes a Firebase instance with the provided configuration
+ * @param projectName - Unique identifier for the Firebase instance
+ * @param config - Firebase configuration object
+ * @returns Promise<void>
+ */
+export declare const initializeFirebase: (projectName: string, config: FirebaseConfig) => Promise<void>;
+/**
  * Configures Firestore settings for a specific Firebase instance
  * @param projectName - Name of the Firebase instance to configure
  * @returns Promise<void>

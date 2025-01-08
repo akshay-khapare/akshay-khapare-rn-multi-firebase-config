@@ -1,6 +1,6 @@
 import { firestore } from "../Firebase";
-import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 import { serverTimestamp } from "@react-native-firebase/firestore";
+import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
 /**
  * Operation types for batch processing
@@ -11,7 +11,7 @@ type OperationType = "set" | "update" | "delete";
  * Single operation in a batch
  * @template T - Type of the document data
  */
-interface BatchOperation<T extends Record<string, any>> {
+interface BatchOperation<T = any> {
   /** Type of operation to perform */
   type: OperationType;
   /** Collection name in Firestore */
@@ -33,13 +33,12 @@ interface BatchOperation<T extends Record<string, any>> {
 export const useFirestoreTransaction = () => {
   /**
    * Executes multiple operations in a batch
-   * @template T - Type of the document data
    * @param operations - Array of batch operations to execute
    * @param firebaseProject - Optional Firebase project name
    * @returns Promise resolving to an array of document IDs
    */
-  const executeBatch = async <T extends Record<string, any>>(
-    operations: BatchOperation<T>[],
+  const executeBatch = async (
+    operations: BatchOperation[],
     firebaseProject?: string
   ): Promise<string[]> => {
     const batch = firestore(firebaseProject).batch();
