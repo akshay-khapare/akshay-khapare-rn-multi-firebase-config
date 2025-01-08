@@ -1,5 +1,5 @@
 export { FirebaseConfig, initializeMultipleFirebaseProjects, } from "./firebaseInit";
-export { auth, firestore, storage } from "./firebase";
+export { auth, firestore, storage } from "./Firebase";
 export { useFirestoreSet } from "./hooks/useFirestoreSet";
 export { useFirestoreGet } from "./hooks/useFirestoreGet";
 export { useFirestoreGetQuery } from "./hooks/useFirestoreGetQuery";

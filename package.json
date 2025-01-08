@@ -1,6 +1,6 @@
 {
   "name": "@akshay-khapare/rn-multi-firebase-config",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A utility package for managing multiple Firebase projects within a single React Native application",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

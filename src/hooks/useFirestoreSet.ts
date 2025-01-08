@@ -1,4 +1,4 @@
-import { firestore } from "../firebase";
+import { firestore } from "../Firebase";
 import { serverTimestamp } from "@react-native-firebase/firestore";
 
 /**
@@ -39,8 +39,13 @@ export const useFirestoreSet = () => {
     merge = false,
     addTimestamp = false,
   }: SetDataParams<T>): Promise<string> => {
-    const documentData = addTimestamp ? { ...data, updatedAt: serverTimestamp() } : data;
-    await firestore(firebaseProject).collection(collection).doc(doc).set(documentData, { merge });
+    const documentData = addTimestamp
+      ? { ...data, updatedAt: serverTimestamp() }
+      : data;
+    await firestore(firebaseProject)
+      .collection(collection)
+      .doc(doc)
+      .set(documentData, { merge });
     return doc;
   };
 

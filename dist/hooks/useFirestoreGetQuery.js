@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useFirestoreGetQuery = void 0;
-const firebase_1 = require("../firebase");
+const Firebase_1 = require("../Firebase");
 /**
  * Hook for executing complex Firestore queries
  * @returns Object containing getQuery function
@@ -15,13 +15,13 @@ const useFirestoreGetQuery = () => {
      * @returns Promise resolving to array of documents with their IDs
      */
     const getQuery = async (params, options) => {
-        const { collection, firebaseProjectName, where, orderBy, limit, startAt, startAfter, endAt, endBefore } = params;
+        const { collection, firebaseProjectName, where, orderBy, limit, startAt, startAfter, endAt, endBefore, } = params;
         // Initialize the query as a CollectionReference
-        let query = (0, firebase_1.firestore)(firebaseProjectName).collection(collection);
+        let query = (0, Firebase_1.firestore)(firebaseProjectName).collection(collection);
         // Apply where clauses
-        where === null || where === void 0 ? void 0 : where.forEach(([field, op, value]) => query = query.where(field, op, value));
+        where === null || where === void 0 ? void 0 : where.forEach(([field, op, value]) => (query = query.where(field, op, value)));
         // Apply ordering
-        orderBy === null || orderBy === void 0 ? void 0 : orderBy.forEach(([field, direction]) => query = query.orderBy(field, direction));
+        orderBy === null || orderBy === void 0 ? void 0 : orderBy.forEach(([field, direction]) => (query = query.orderBy(field, direction)));
         // Apply cursors
         if (startAt)
             query = query.startAt(startAt);

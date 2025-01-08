@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useFirestoreTransaction = void 0;
-const firebase_1 = require("../firebase");
+const Firebase_1 = require("../Firebase");
 const firestore_1 = require("@react-native-firebase/firestore");
 /**
  * Hook for handling Firestore transactions and batch operations
@@ -15,11 +15,13 @@ const useFirestoreTransaction = () => {
      * @returns Promise resolving to an array of document IDs
      */
     const executeBatch = async (operations, firebaseProject) => {
-        const batch = (0, firebase_1.firestore)(firebaseProject).batch();
-        const firestoreInstance = (0, firebase_1.firestore)(firebaseProject);
+        const batch = (0, Firebase_1.firestore)(firebaseProject).batch();
+        const firestoreInstance = (0, Firebase_1.firestore)(firebaseProject);
         operations.forEach(({ type, collection, doc, data, merge, addTimestamp }) => {
             const ref = firestoreInstance.collection(collection).doc(doc);
-            const documentData = addTimestamp ? { ...data, updatedAt: (0, firestore_1.serverTimestamp)() } : data;
+            const documentData = addTimestamp
+                ? { ...data, updatedAt: (0, firestore_1.serverTimestamp)() }
+                : data;
             switch (type) {
                 case "set":
                     if (documentData)
@@ -35,7 +37,7 @@ const useFirestoreTransaction = () => {
             }
         });
         await batch.commit();
-        return operations.map(op => op.doc);
+        return operations.map((op) => op.doc);
     };
     /**
      * Executes operations in a transaction
@@ -44,7 +46,7 @@ const useFirestoreTransaction = () => {
      * @returns Promise resolving to transaction result
      */
     const executeTransaction = async (callback) => {
-        return (0, firebase_1.firestore)().runTransaction(transaction => callback(transaction, firebase_1.firestore));
+        return (0, Firebase_1.firestore)().runTransaction((transaction) => callback(transaction, Firebase_1.firestore));
     };
     return { executeBatch, executeTransaction };
 };

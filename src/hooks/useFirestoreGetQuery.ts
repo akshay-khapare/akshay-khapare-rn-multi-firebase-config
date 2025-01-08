@@ -1,4 +1,4 @@
-import { firestore } from "../firebase";
+import { firestore } from "../Firebase";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
 /**
@@ -49,16 +49,31 @@ export const useFirestoreGetQuery = () => {
     params: QueryParams,
     options?: QueryOptions
   ): Promise<(T & { id: string })[]> => {
-    const { collection, firebaseProjectName, where, orderBy, limit, startAt, startAfter, endAt, endBefore } = params;
+    const {
+      collection,
+      firebaseProjectName,
+      where,
+      orderBy,
+      limit,
+      startAt,
+      startAfter,
+      endAt,
+      endBefore,
+    } = params;
 
     // Initialize the query as a CollectionReference
-    let query: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> = firestore(firebaseProjectName).collection(collection);
+    let query: FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData> =
+      firestore(firebaseProjectName).collection(collection);
 
     // Apply where clauses
-    where?.forEach(([field, op, value]) => query = query.where(field, op, value));
+    where?.forEach(
+      ([field, op, value]) => (query = query.where(field, op, value))
+    );
 
     // Apply ordering
-    orderBy?.forEach(([field, direction]) => query = query.orderBy(field, direction));
+    orderBy?.forEach(
+      ([field, direction]) => (query = query.orderBy(field, direction))
+    );
 
     // Apply cursors
     if (startAt) query = query.startAt(startAt);

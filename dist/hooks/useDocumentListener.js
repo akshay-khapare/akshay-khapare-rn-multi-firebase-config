@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useDocumentListener = void 0;
-const firebase_1 = require("../firebase");
+const Firebase_1 = require("../Firebase");
 /**
  * Hook to listen to a Firestore document.
  *
@@ -16,7 +16,7 @@ const useDocumentListener = () => {
      * @returns A function to unsubscribe from the listener.
      */
     const listenToDocument = ({ collection, doc, onData, onError, firebaseProject, }) => {
-        return (0, firebase_1.firestore)(firebaseProject)
+        return (0, Firebase_1.firestore)(firebaseProject)
             .collection(collection)
             .doc(doc)
             .onSnapshot((snapshot) => {

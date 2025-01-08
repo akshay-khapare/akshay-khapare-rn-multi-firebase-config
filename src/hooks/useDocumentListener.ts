@@ -1,4 +1,4 @@
-import { firestore } from "../firebase";
+import { firestore } from "../Firebase";
 
 interface DocumentData<T> {
   id: string;

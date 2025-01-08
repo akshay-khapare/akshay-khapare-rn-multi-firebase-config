@@ -1,4 +1,4 @@
-import { firestore } from "../firebase";
+import { firestore } from "../Firebase";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 /**
  * Operation types for batch processing

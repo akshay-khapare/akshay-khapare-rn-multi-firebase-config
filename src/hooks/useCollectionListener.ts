@@ -1,4 +1,4 @@
-import { firestore } from "../firebase";
+import { firestore } from "../Firebase";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
 /**
@@ -60,18 +60,33 @@ export const useCollectionListener = () => {
    * @param params The parameters for the listener.
    * @returns A function to unsubscribe from the listener.
    */
-  const listenToCollection = <T extends Record<string, any>>(params: ListenerParams<T>): (() => void) => {
-    const { collection, firebaseProject, onData, onError, where, orderBy, limit } = params;
+  const listenToCollection = <T extends Record<string, any>>(
+    params: ListenerParams<T>
+  ): (() => void) => {
+    const {
+      collection,
+      firebaseProject,
+      onData,
+      onError,
+      where,
+      orderBy,
+      limit,
+    } = params;
     const collectionRef = firestore(firebaseProject).collection(collection);
-    let query = collectionRef as FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData>;
+    let query =
+      collectionRef as FirebaseFirestoreTypes.Query<FirebaseFirestoreTypes.DocumentData>;
 
     // Build the query based on provided parameters
     if (where) {
-      where.forEach(([field, op, value]) => query = query.where(field, op, value));
+      where.forEach(
+        ([field, op, value]) => (query = query.where(field, op, value))
+      );
     }
 
     if (orderBy) {
-      orderBy.forEach(([field, direction]) => query = query.orderBy(field, direction));
+      orderBy.forEach(
+        ([field, direction]) => (query = query.orderBy(field, direction))
+      );
     }
 
     if (limit) {
@@ -80,7 +95,9 @@ export const useCollectionListener = () => {
 
     return query.onSnapshot(
       (snapshot) => {
-        onData(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() as T })));
+        onData(
+          snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() as T }))
+        );
       },
       (error) => onError?.(error)
     );

@@ -2,7 +2,7 @@ import firebaseApp from "@react-native-firebase/app";
 import "@react-native-firebase/auth";
 import "@react-native-firebase/firestore";
 import "@react-native-firebase/storage";
-import { firestore } from "./firebase";
+import { firestore } from "./Firebase";
 
 /**
  * Firebase configuration interface

@@ -1,4 +1,4 @@
-import { firestore } from "../firebase";
+import { firestore } from "../Firebase";
 import { serverTimestamp } from "@react-native-firebase/firestore";
 import type { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
 
@@ -44,25 +44,29 @@ export const useFirestoreTransaction = () => {
     const batch = firestore(firebaseProject).batch();
     const firestoreInstance = firestore(firebaseProject);
 
-    operations.forEach(({ type, collection, doc, data, merge, addTimestamp }) => {
-      const ref = firestoreInstance.collection(collection).doc(doc);
-      const documentData = addTimestamp ? { ...data, updatedAt: serverTimestamp() } : data;
+    operations.forEach(
+      ({ type, collection, doc, data, merge, addTimestamp }) => {
+        const ref = firestoreInstance.collection(collection).doc(doc);
+        const documentData = addTimestamp
+          ? { ...data, updatedAt: serverTimestamp() }
+          : data;
 
-      switch (type) {
-        case "set":
-          if (documentData) batch.set(ref, documentData, { merge: !!merge });
-          break;
-        case "update":
-          if (documentData) batch.update(ref, documentData);
-          break;
-        case "delete":
-          batch.delete(ref);
-          break;
+        switch (type) {
+          case "set":
+            if (documentData) batch.set(ref, documentData, { merge: !!merge });
+            break;
+          case "update":
+            if (documentData) batch.update(ref, documentData);
+            break;
+          case "delete":
+            batch.delete(ref);
+            break;
+        }
       }
-    });
+    );
 
     await batch.commit();
-    return operations.map(op => op.doc);
+    return operations.map((op) => op.doc);
   };
 
   /**
@@ -77,7 +81,9 @@ export const useFirestoreTransaction = () => {
       firestoreInstance: typeof firestore
     ) => Promise<T>
   ): Promise<T> => {
-    return firestore().runTransaction(transaction => callback(transaction, firestore));
+    return firestore().runTransaction((transaction) =>
+      callback(transaction, firestore)
+    );
   };
 
   return { executeBatch, executeTransaction };
